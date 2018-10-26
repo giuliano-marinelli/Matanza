@@ -28,7 +28,7 @@ init(cell(0,1,b)).
 init(cell(0,2,b)).
 init(cell(0,3,p)).
 init(cell(0,4,b)).
-init(cell(0,5,y)).
+init(cell(0,5,rol(y))).
 init(cell(0,6,p)).
 
 init(cell(1,0,b)).
@@ -72,7 +72,7 @@ init(cell(5,5,b)).
 init(cell(5,6,b)).
 
 init(cell(6,0,p)).
-init(cell(6,1,x)).
+init(cell(6,1,rol(x))).
 init(cell(6,2,b)).
 init(cell(6,3,p)).
 init(cell(6,4,b)).

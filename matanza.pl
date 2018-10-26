@@ -1,34 +1,34 @@
 %flechas
 % http://xahlee.info/comp/unicode_arrows.html
-% ↑ ↓ → ← ↗ ↖ ↘ ↙
-% ⬆ ⬇ ⮕ ⬅ ⬈ ⬉ ⬊ ⬋
+% â†‘ â†“ â†’ â†? â†— â†– â†˜ â†™
+% â¬† â¬‡ â®• â¬… â¬ˆ â¬‰ â¬Š â¬‹
 % ? ? ? ? ? ? ? ?
-% ⭡ ⭣ ⭢ ⭠ ⭦ ⭧ ⭨ ⭩
+% â­¡ â­£ â­¢ â­  â­¦ â­§ â­¨ â­©
 % ? ? ? ? ? ? ? ?
 % ? ? ? ? ? ? ? ?
 
-% ⬆ ⬇ ⮕ ⬅ ⬉ ⬈ ⬊ ⬋
-% ⇧ ⇩ ⇨ ⇦ ⬁ ⬀ ⬂ ⬃
+% â¬† â¬‡ â®• â¬… â¬‰ â¬ˆ â¬Š â¬‹
+% â‡§ â‡© â‡¨ â‡¦ â¬? â¬€ â¬‚ â¬ƒ
 
-% ↖ ↑ ↗
-% ← ○ →
-% ↙ ↓ ↘
+% â†– â†‘ â†—
+% â†? â—‹ â†’
+% â†™ â†“ â†˜
 
-% ⬉ ⬆ ⬈
-% ⬅ ○ ⮕
-% ⬋ ⬇ ⬊
+% â¬‰ â¬† â¬ˆ
+% â¬… â—‹ â®•
+% â¬‹ â¬‡ â¬Š
 
-% ⭦ ⭡ ⭧
-% ⭠ ○ ⭢
-% ⭩ ⭣ ⭨
+% â­¦ â­¡ â­§
+% â­  â—‹ â­¢
+% â­© â­£ â­¨
 
 % ? ? ?
-% ? ○ ?
+% ? â—‹ ?
 % ? ? ?
 
-% ⬁ ⇧ ⬀
-% ⇦ ○ ⇨
-% ⬃ ⇩ ⬂
+% â¬? â‡§ â¬€
+% â‡¦ â—‹ â‡¨
+% â¬ƒ â‡© â¬‚
 
 main :- 
   inicio,
@@ -55,7 +55,7 @@ base(cell(X,Y,p)) :-
   index(X),
   index(Y).
 
-base(cell(X,Y,R)) :- 
+base(cell(X,Y,rol(R))) :- 
   role(R),
   index(X),
   index(Y).
@@ -101,9 +101,9 @@ input(R,nada) :-
 %movimientos legales
 legal(R,lanzar(X,Y)) :- 
   t(control(R)),
-  (t(cell(X,Y,b));t(cell(X,Y,x));t(cell(X,Y,y))),
+  (t(cell(X,Y,b));t(cell(X,Y,rol(_R1)))),
   \+(posicion_futura(_R,_P,X,Y)),
-  t(cell(X1,Y1,R)),
+  t(cell(X1,Y1,rol(R))),
   adyacente(X,Y,X1,Y1),
   t(pelotas(R,C)),
   C > 0.
@@ -111,13 +111,13 @@ legal(R,lanzar(X,Y)) :-
 legal(R,mover(X,Y)) :- 
   t(control(R)),
   t(cell(X,Y,pelota(_R1,_P,_XV,_YV))),
-  t(cell(X1,Y1,R)),
+  t(cell(X1,Y1,rol(R))),
   adyacente(X,Y,X1,Y1).
 
 legal(R,mover(X,Y)) :- 
   t(control(R)),
   t(cell(X,Y,b)),
-  t(cell(X1,Y1,R)),
+  t(cell(X1,Y1,rol(R))),
   adyacente(X,Y,X1,Y1).
 
 legal(_R,nada).
@@ -127,7 +127,7 @@ adyacente(X1,Y1,X2,Y2) :-
   ((X1 is X2),(Y1 is Y2+1; Y1 is Y2-1));
   ((X1 is X2+1; X1 is X2-1),(Y1 is Y2)).
 
-%próximo estado
+%prÃ³ximo estado
 %celdas con paredes
 next(cell(X,Y,p)) :- 
   t(cell(X,Y,p)).
@@ -135,15 +135,17 @@ next(cell(X,Y,p)) :-
 %celdas con jugador golpeado
 %si se mueve hacia una pelota enemiga
 next(cell(X,Y,golpeado(R))) :-
+  role(R),
   does(R,mover(X,Y)),
   posicion_futura(E,_P,X,Y),
   E \== R,
   \+colision(X,Y).
 
-%si se mueve hacia una pelota que viene directo hacia él.
+%si se mueve hacia una pelota que viene directo hacia Ã©l.
 next(cell(X1,Y1,golpeado(R))) :-
+  role(R),
   does(R,mover(X,Y)),
-  t(cell(X1,Y1,R)),
+  t(cell(X1,Y1,rol(R))),
   t(cell(X,Y,pelota(E,P,_XV,_YV))),
   E \== R,
   posicion_futura(E,P,X1,Y1),
@@ -151,50 +153,58 @@ next(cell(X1,Y1,golpeado(R))) :-
 
 %si el enemigo le lanza una pelota
 next(cell(X,Y,golpeado(R))) :-
+  role(E),
+  role(R),
+  E \== R,
   does(E,lanzar(X,Y)),
-  t(cell(X,Y,R)),
-  E \== R.
+  t(cell(X,Y,rol(R))).
 
 %si no hace nada y una pelota enemiga lo golpea
 next(cell(X,Y,golpeado(R))) :-
+  role(R),
   does(R,nada),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   posicion_futura(E,_P,X,Y),
   E \== R,
   \+colision(X,Y).
 
 %celdas con jugadores
-%	caso de ser golpeado se maneja 
-%	antes y no hay q contemplarlo aca
+% caso de ser golpeado se maneja 
+% antes y no hay q contemplarlo aca
 
 %si hizo nada o lanzo y no cae pelota entonces la celda tiene al jugador.
-next(cell(X,Y,R)) :-
+next(cell(X,Y,rol(R))) :-
+  role(R),
   (does(R,nada);does(R,lanzar(_X1,_Y1))),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   \+posicion_futura(_E,_P,X,Y).
 
 %si hizo nada o lanzo y no cae pelota por colision, entonces la celda tiene al jugador.
-next(cell(X,Y,R)) :-
+next(cell(X,Y,rol(R))) :-
+  role(R),
   (does(R,nada);does(R,lanzar(_X1,_Y1))),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   posicion_futura(_E,_P,X,Y),
   colision(X,Y).
 
 %si hizo nada o lanzo, y cae una pelota que es del role, entonces la celda tiene al rol.
-next(cell(X,Y,R)) :-
+next(cell(X,Y,rol(R))) :-
+  role(R),
   (does(R,nada);does(R,lanzar(_X1,_Y1))),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   posicion_futura(R,_P,X,Y),
   \+colision(X,Y).
 
 %si se mueve y cae pelota del role, entonces la celda  tiene al role.
-next(cell(X,Y,R)) :-
+next(cell(X,Y,rol(R))) :-
+  role(R),
   does(R,mover(X,Y)),
   posicion_futura(R,_P,X,Y),
   \+colision(X,Y).
 
 %si se mueve y no cae pelota, entonces la celda tiene al jugador
-next(cell(X,Y,R)) :-
+next(cell(X,Y,rol(R))) :-
+  role(R),
   does(R,mover(X,Y)),
   \+posicion_futura(_E,_P,X,Y).
 
@@ -202,8 +212,9 @@ next(cell(X,Y,R)) :-
 %celdas con pelotas
 %una pelota es lanzada
 next(cell(X,Y,pelota(R,P,XV,YV))) :- 
+  role(R),
   does(R,lanzar(X,Y)),
-  t(cell(XR,YR,R)),
+  t(cell(XR,YR,rol(R))),
   XV is X - XR,
   YV is Y - YR,
   init(pelotas(R,CantP)),
@@ -223,7 +234,8 @@ next(cell(X,Y,pelota(R,P,XV,YV))) :-
   \+(does(_R1,mover(X,Y))),
   X == X1, Y == Y1, %al preguntar si son iguales no es necesario ver que sea una casilla blanca
   XV is XV1 * (-1),
-  YV is YV1 * (-1).
+  YV is YV1 * (-1),
+  \+posicion_futura(_R2,_P1,X,Y).
 
 %choca contra una pered y viene en diagonal, entonces se invierte su velocidad sobre el eje ignorado (X)
 next(cell(X,Y,pelota(R,P,XV,YV))) :- 
@@ -275,7 +287,7 @@ next(cell(X,Y,pelota(R,P,0,0))) :-
   colision(X1,Y1),
   \+(does(_R1,mover(X,Y))).
 
-%detecta que atravesó a otra pelota a cero distancia
+%detecta que atravesÃ³ a otra pelota a cero distancia
  next(cell(X,Y,pelota(R,P,0,0))) :- 
    t(cell(X,Y,pelota(R,P,_XV,_YV))),
    posicion_futura(R,P,X1,Y1),
@@ -308,7 +320,7 @@ next(cell(X,Y,pelota(R,P,XV,YV))) :-
   t(cell(X1,Y1,pelota(R,P,XV,YV))),
   posicion_futura(R,P,X,Y),
   \+(colision(X,Y)),
-  t(cell(X,Y,R1)),
+  t(cell(X,Y,rol(R1))),
   (does(R1,mover(X2,Y2))),
   (X1\==X2; Y1\==Y2).
 
@@ -316,7 +328,7 @@ next(cell(X,Y,pelota(R,P,XV,YV))) :-
 %celdas vacias
 %si alguien se mueve desde ella
 next(cell(X,Y,b)) :-
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   does(R,mover(_X1,_Y1)),
   (\+posicion_futura(_R1,_P,X,Y);colision(X,Y)).
 
@@ -337,12 +349,13 @@ next(cell(X,Y,b)) :-
 %si tiene una pelota y la pelota puede moverse. 
 % y nadie se mueve sobre ella
 next(cell(X,Y,b)) :- 
-  t(cell(X,Y,pelota(_R,_P,XV,YV))),
+  t(cell(X,Y,pelota(R,P,XV,YV))),
   S is X + XV,
   T is Y + YV,
   \+colision(S,T),
+  \+(posicion_futura(R,P,X,Y)),
   \+(does(_R2,mover(X,Y))),
-  (\+posicion_futura(_R1,_P1,X,Y);colision(X,Y)),
+  (\+(posicion_futura(_R1,_P1,X,Y));colision(X,Y)),
   \+(does(_R3,lanzar(X,Y))).
 
 %si es blanca y pasa nada
@@ -352,30 +365,26 @@ next(cell(X,Y,b)) :-
   does(R,nada),
   (\+posicion_futura(_R1,_P,X,Y);colision(X,Y)).
 
-%si el jugador se mueve hacia una pelota de él, que viene directo hacia él.
+%si el jugador se mueve hacia una pelota de Ã©l, que viene directo hacia Ã©l.
 next(cell(X,Y,b)) :-
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   does(R,mover(X1,Y1)),
   t(cell(X1,Y1,pelota(R,P,_XV,_YV))),
   posicion_futura(R,P,X2,Y2),
   X2==X,Y2==Y.
 
-%celda erronea (no ocurrio en ningun caso anterior)
-next(cell(X,Y,e)) :-
-  t(cell(X,Y,_A)).
-
 
 %si lanza y le cae una pelota sigue teniendo la misma cantidad
 next(pelotas(R,C2)) :-
   does(R,lanzar(_X,_Y)),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   cae_pelota(X,Y,R),
   t(pelotas(R,C2)).
 
 %si lanza y no le cae pelota pierde una
 next(pelotas(R,C1)) :-
   does(R,lanzar(_X,_Y)),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   \+cae_pelota(X,Y,R),
   t(pelotas(R,C2)),
   C1 is C2-1.
@@ -388,10 +397,10 @@ next(pelotas(R,C1)) :-
   t(pelotas(R,C2)),
   C1 is C2+1.
 
-%si se mueve a hacia una pelota que viene directo hacia él gana una.
+%si se mueve a hacia una pelota que viene directo hacia Ã©l gana una.
 next(pelotas(R,C1)) :-
   does(R,mover(X,Y)),
-  t(cell(X1,Y1,R)),
+  t(cell(X1,Y1,rol(R))),
   t(cell(X,Y,pelota(R,P,_XV,_YV))),
   posicion_futura(R,P,X2,Y2),
   X2==X1,Y2==Y1,
@@ -407,7 +416,7 @@ next(pelotas(R,C2)) :-
 %si hace nada y le cae pelota gana una
 next(pelotas(R,C1)) :-
   does(R,nada),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   cae_pelota(X,Y,R),
   t(pelotas(R,C2)),
   C1 is C2+1.
@@ -415,7 +424,7 @@ next(pelotas(R,C1)) :-
 %si hace nada y no le cae pelota sigue igual
 next(pelotas(R,C2)) :-
   does(R,nada),
-  t(cell(X,Y,R)),
+  t(cell(X,Y,rol(R))),
   \+cae_pelota(X,Y,R),
   t(pelotas(R,C2)).
 
@@ -429,8 +438,8 @@ next(control(y)) :-
 
 %llega pelota porque no hay colision.
 cae_pelota(X,Y,R):-
-	posicion_futura(R,_P,X,Y),
-	\+colision(X,Y).
+  posicion_futura(R,_P,X,Y),
+  \+colision(X,Y).
 
 %se queda en el lugar porque tiene velocidad 0,0
 posicion_futura(R,P,X,Y) :-
@@ -461,9 +470,9 @@ posicion_futura(R,P,X,Y) :-
   t(cell(X,Y,pelota(R,P,XV,YV))),
   XF is X + XV,
   YF is Y + YV,
-  t(cell(XF,YF,p)),		%celda futura
-  ((t(cell(X,YF,p)),t(cell(XF,Y,p))); 	%celda 1
-  ((\+(t(cell(X,YF,p))),\+(t(cell(XF,Y,p)))))), 	%celda 2
+  t(cell(XF,YF,p)),   %celda futura
+  ((t(cell(X,YF,p)),t(cell(XF,Y,p)));   %celda 1
+  ((\+(t(cell(X,YF,p))),\+(t(cell(XF,Y,p)))))),   %celda 2
   %diagonales
   ((XV == 1;XV == -1),(YV == 1;YV == -1)).
 
@@ -472,9 +481,9 @@ posicion_futura(R,P,XF,Y) :-
   t(cell(X,Y,pelota(R,P,XV,YV))),
   XF is X + XV,
   YF is Y + YV,
-  t(cell(XF,YF,p)),		%celda futura
-  t(cell(X,YF,p)), 	%celda 1
-  \+t(cell(XF,Y,p)), 	%celda 2
+  t(cell(XF,YF,p)),   %celda futura
+  t(cell(X,YF,p)),  %celda 1
+  \+t(cell(XF,Y,p)),  %celda 2
   %diagonales
   ((XV == 1;XV == -1),(YV == 1;YV == -1)).
 
@@ -483,9 +492,9 @@ posicion_futura(R,P,X,YF) :-
   t(cell(X,Y,pelota(R,P,XV,YV))),
   XF is X + XV,
   YF is Y + YV,
-  t(cell(XF,YF,p)),		%celda futura
-  \+t(cell(X,YF,p)), 	%celda 1
-  t(cell(XF,Y,p)), 	%celda 2
+  t(cell(XF,YF,p)),   %celda futura
+  \+t(cell(X,YF,p)),  %celda 1
+  t(cell(XF,Y,p)),  %celda 2
   %diagonales
   ((XV == 1;XV == -1),(YV == 1;YV == -1)).
 
@@ -556,7 +565,7 @@ crea_estado_inicial :-
 % gestor del juego
 % borra acciones viejas
 % busca nuevas acciones
-% calcula próximo estado
+% calcula prÃ³ximo estado
 % crea proximo estado
 
 juego :- 
@@ -582,7 +591,7 @@ juego :-
   write(' puntos.').
 
 % busca las nuevas acciones de los jugadores y las inserta
-inserta_acciones :- 
+inserta_acciones:- 
   t(control(X)),
   jugador(X,A),
   legal(X,A),
@@ -591,7 +600,7 @@ inserta_acciones :-
   distinct(X,O),
   assert(does(O,nada)).
 
-%calcula el próximo estado
+%calcula el prÃ³ximo estado
 proximo_estado :- 
   estado(E),
   next(Y),
@@ -617,7 +626,9 @@ crea_estado :-
 %imprime estado actual del juego
 imprime :-
   estado(E),
-  write('Accion elegida: '),does(_E,A),write(A),nl,
+  write('Acciones elegidas: '),nl,
+  does(x,A),write(['x: ',A]),nl,
+  does(y,A1),write(['y: ',A1]),nl,
   findall(pelota(R,P,XV,YV),t(cell(_X1,_Y1,pelota(R,P,XV,YV))),True),
   write('Pelotas assertadas: '),write(True),nl,
   write('Estado: '),
@@ -705,12 +716,12 @@ imprime_celda(X,Y) :-
   write('\u25A0 ').
 
 imprime_celda(X,Y) :-
-  t(cell(X,Y,x)),
+  t(cell(X,Y,rol(x))),
   write('\u24E7 ').
   %write('X ').
 
 imprime_celda(X,Y) :-
-  t(cell(X,Y,y)),
+  t(cell(X,Y,rol(y))),
   write('\u24E8 ').
   %write('Y ').
 
@@ -719,6 +730,10 @@ imprime_celda(X,Y) :-
   imprime_direccion(XV,YV).
   %write('\u2190 ').
   %write(P),write(' ').
+
+imprime_celda(X,Y) :-
+  t(cell(X,Y,golpeado(_R))),
+  write('\u25A3 ').
 
 imprime_celda(X,Y) :-
   t(cell(X,Y,e)),
@@ -745,10 +760,21 @@ clear_all :- write('\33\[H\33\[2J').
 
 :- include('agente_v2').
 
-%% jugador(x,A) :-
-%%   agente(x,A).
+jugador(x,A) :-
+  %nl,nl,write('ANTES'),nl,
+  %imprime,
+  %nl,nl,nl,
+  %estado(E),
+  %nl,nl,nl,
+  agente(x,A),
+   findall(A1,t(A1),H),
+  write(H),nl.
+    %nl,nl,write('DESPUES'),nl,
+  %imprime,
+  %nl,nl,nl,
+  %estado(E),
+  %write(E),
+  %nl,nl,nl.
 
-%% jugador(R,A) :-
-%%   legal(R,A).
-
-jugador(_,nada).
+jugador(R,A) :-
+  legal(R,A).
