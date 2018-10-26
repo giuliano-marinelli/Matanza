@@ -1,0 +1,76 @@
+﻿Nombre:
+Matanza
+
+Historia:
+Dos deportistas juegan a la matanza en una habitación con obstáculos, solo disponen de dos pelotas pintadas con el color de su equipo y deben golpear al oponente con alguna de ellas antes de que este lo haga. El ganador será el gran campeón de la matanza.
+
+Tablero:
+■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+■ □ □ □ □ □ □ □ Y ■
+■ □ □ ■ □ □ □ □ □ ■
+■ □ ■ ■ □ □ □ □ □ ■
+■ □ □ □ □ □ □ □ □ ■
+■ □ □ □ □ □ □ □ □ ■
+■ □ □ □ □ □ ■ ■ □ ■
+■ □ □ □ □ □ ■ □ □ ■
+■ X □ □ □ □ □ □ □ ■
+■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+
+X,Y = jugadores
+■ = paredes
+□ = blanco (vacío)
+
+🡤 🡡 🡥
+🡠 ○ 🡢 = pelotas (dirección según velocidad)
+🡧 🡣 🡦
+
+⬁ ⇧ ⬀   ⬉ ⬆ ⬈
+⇦ ○ ⇨   ⬅ ● ⮕ = pelotas por equipo
+⬃ ⇩ ⬂   ⬋ ⬇ ⬊
+
+⭦ ⭡ ⭧
+⭠ ○ ⭢ = pelotas (dirección según velocidad)
+⭩ ⭣ ⭨
+
+Reglas:
+1) Acciones:
+lanzar(X,Y): crea una pelota en una posición (X,Y) adyacente al jugador, que no esté ocupada por una pared u otra pelota. La pelota toma una velocidad (X,Y) equivalente a la resta entre la posición de la pelota y la posición del jugador.
+
+mover(X,Y): mueve al jugador a una posición (X,Y) adyacente a el, que no esté ocupada por una pared u otro jugador.
+
+nada: mantiene al jugador en su posición actual.
+
+2) Mecánicas:
+Al finalizar cada turno las pelotas cambian su posición a su posición actual mas su velocidad. En caso de haber una pared en tal lugar se produce un rebote. En caso de haber otra pelota (actualmente o luego de moverse), ambas obtienen velocidad (0,0).
+
+Colisión de pelotas:
+    🡢 □ 🡠   ⇒   ○ □ ○
+    🡢 🡠     ⇒   ○ ○
+
+    ⭢ □ ⭠   ⇒   ○ □ ○
+    ⭢ ⭠     ⇒   ○ ○
+
+Rebote de pelota:
+    🡦 🡣 🡧       🡤 🡡 🡥
+    🡢 ■ 🡠   ⇒  🡠 ■ 🡢
+    🡥 🡡 🡤       🡧 🡣 🡦
+
+    🡦 ■     ⇒   □ ■
+    □ ■          🡧 ■
+
+    🡦 □     ⇒   □ 🡥
+    ■ ■          ■ ■
+
+    ⭨ ⭣ ⭩       ⭦ ⭡ ⭧
+    ⭢ ■ ⭠   ⇒  ⭠ ■ ⭢
+    ⭧ ⭡ ⭦       ⭩ ⭣ ⭨
+
+    ⭨ ■     ⇒   □ ■
+    □ ■          ⭩ ■
+
+    ⭨ □     ⇒   □ ⭧
+    ■ ■          ■ ■
+
+Si un jugador y una pelota tendrán la misma posición al finalizar el turno:
+	1) Si la pelota le pertenece al jugador, la agarra y puede lanzarla nuevamente.
+	2) Si la pelota no le pertenece al jugador, el jugador pierde el juego.
