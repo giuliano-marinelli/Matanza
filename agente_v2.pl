@@ -1,6 +1,6 @@
 %desarrollo jugador X
 agente(R,A) :-
-  mejor_accion(R,A).
+	mejor_accion(R,A).
 
 mejor_accion(R,A) :- 
   retractall(utilidad(_,_)),
@@ -8,13 +8,14 @@ mejor_accion(R,A) :-
   findall(A1,legal(R,A1),Ac),
   %write('Acciones legales: '),write(Ac),nl,
   simular_acciones(R,Ac),
+  retractall(does(_,_)),
   %conseguir accion de mayor utilidad y devolverla en A.
   findall([AT,UT],utilidad(AT,UT),UTs),
   %write('Acciones utilidad: '),write(UTs),nl,
   assert(max_utilidad(nada,-100)),
   mayor_utilidad(UTs),
-  max_utilidad(A,_),
-  write('Mejor accion: '),write(A),nl.
+  max_utilidad(A,_).
+  %write('Mejor accion: '),write(A),nl.
   %break.
 
 simular_acciones(_,[]).

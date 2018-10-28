@@ -29,7 +29,7 @@ init(cell(1,0,p)).
 init(cell(1,1,b)).
 init(cell(1,2,b)).
 init(cell(1,3,pelota(y,2,-1,-1))).
-init(cell(1,4,y)).
+init(cell(1,4,rol(y))).
 init(cell(1,5,p)).
 
 init(cell(2,0,p)).
@@ -47,7 +47,7 @@ init(cell(3,4,b)).
 init(cell(3,5,p)).
 
 init(cell(4,0,p)).
-init(cell(4,1,x)).
+init(cell(4,1,rol(x))).
 init(cell(4,2,pelota(x,2,1,1))).
 init(cell(4,3,b)).
 init(cell(4,4,b)).

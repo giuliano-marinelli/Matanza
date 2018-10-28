@@ -766,9 +766,9 @@ jugador(x,A) :-
   %nl,nl,nl,
   %estado(E),
   %nl,nl,nl,
-  agente(x,A),
-   findall(A1,t(A1),H),
-  write(H),nl.
+  agente(x,A).
+   /*findall(A1,t(A1),H),
+  write(H),nl.*/
     %nl,nl,write('DESPUES'),nl,
   %imprime,
   %nl,nl,nl,
