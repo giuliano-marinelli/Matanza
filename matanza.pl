@@ -588,27 +588,17 @@ inserta_acciones :-
   assert(does(O,nada)).
 
 %calcula el próximo estado
-proximo_estado :- 
-  estado(E),
-  next(Y),
-  \+(h(E,Y)),
-  assert(h(E,Y)),
-  proximo_estado.
+proximo_estado:-
+	estado(E),
+	forall((next(Y),\+h(E,Y)), assert(h(E,Y))).	
 
-proximo_estado.
-
-%crea el estado actual
-crea_estado :- 
-  estado(E),
-  h(E,Y),
-  \+(t(Y)),
-  assert(t(Y)),
-  crea_estado.
-
-crea_estado :- 
-  retract(estado(N)),
-  N2 is N+1,
-  assert(estado(N2)).
+%crea el estado actual	
+crea_estado:-
+	estado(E),
+	forall((h(E,Y),\+t(Y)), assert(t(Y))),
+	retract(estado(State)),
+	NewState is State +1,
+	assert(estado(NewState)).
 
 %imprime estado actual del juego
 imprime :-
@@ -741,8 +731,14 @@ clear_all :- write('\33\[H\33\[2J').
 
 :- include('agente').
 
-jugador(R,A) :-
- agente(R,A).
+:- include('agente_mio').
+
+jugador(x,A) :-
+ agent(A).
+
+
+jugador(y,A) :-
+ agente(A).
 
 %% jugador(R,A) :-
 %%   legal(R,A).

@@ -1,68 +1,85 @@
-%desarrollo jugador X
-agente(R,A) :-
-	mejor_accion(R,A).
+%Agente generico, funciona en cualquier juego basandose en el valor retornado por 'goal'
+agent(MejorAccion) :-
+            getAccionesLegales([],LAcciones),
+            salvarEstadoActual([],Estado),
+            simularEstados(LAcciones,Estado,LAccionesPuntajes),
+            getMejorAccion(LAccionesPuntajes,_,-1,MejorAccion,_).
 
-mejor_accion(R,A) :- 
-  retractall(utilidad(_,_)),
-  retractall(max_utilidad(_,_)),
-  findall(A1,legal(R,A1),Ac),
-  %write('Acciones legales: '),write(Ac),nl,
-  simular_acciones(R,Ac),
-  retractall(does(_,_)),
-  %conseguir accion de mayor utilidad y devolverla en A.
-  findall([AT,UT],utilidad(AT,UT),UTs),
-  %write('Acciones utilidad: '),write(UTs),nl,
-  assert(max_utilidad(nada,-100)),
-  mayor_utilidad(UTs),
-  max_utilidad(A,_).
-  %write('Mejor accion: '),write(A),nl.
-  %break.
 
-simular_acciones(_,[]).
+%Obtener aciones legales para el jugador actual
+getAccionesLegales(L0,L1) :-
+      t(control(J)),
+      legal(J,A),
+      \+member(A,L0),
+      distinct(A,nada),
+      getAccionesLegales([A|L0],L1).
 
-simular_acciones(R,[A|Ac]) :-
+getAccionesLegales(L,L).
+
+salvarEstadoActual(Lin,Lout) :-
+      t(X),
+      \+member(X,Lin),
+      salvarEstadoActual([X|Lin],Lout).
+
+salvarEstadoActual(Lout,Lout).
+
+
+%Simula los estados resultantes de aplicar las acciones en la lista recibida como 1er argumento
+simularEstados([A|R1],EstadoAnterior,[ParAccionPuntaje|R2]):-
+      simularEstado(A,ParAccionPuntaje),
+      retractall(t(_)),
+      restaurarEstado(EstadoAnterior),
+      simularEstados(R1,EstadoAnterior,R2).
+
+simularEstados([],_,[]).
+
+
+simularEstado(A,ParAccionPuntaje):-
+      t(control(X)),
+      assert(does(X,A)),
+      role(O), distinct(X,O),
+      assert(does(O,nada)),
+      proximo_estado_simulado,
+      retract(does(X,A)),
+      retract(does(O,nada)),
+      retractall(t(_Y)),
+      crea_estado_simulado,
+      goal(X,ValorGoal),
+      ParAccionPuntaje = (A,ValorGoal).
+
+restaurarEstado([X|Xs]) :-
+      assert(t(X)),
+      restaurarEstado(Xs).
+restaurarEstado([]).
+
+
+proximo_estado_simulado:-
   estado(E),
-  E1 is E-1,
-  simular_accion(R,A),
-  eliminar_simulacion(E1),
-  restaurar_original(E1),
-  simular_acciones(R,Ac).
+  next(Y),
+  \+(h(E,Y)),
+  assert(h(E,Y)),
+  proximo_estado_simulado.
 
-simular_accion(R,A) :-
-  retractall(does(_,_)),
-  assert(does(R,A)),
-  role(R1),
-  distinct(R,R1),
-  assert(does(R1,nada)),
-  proximo_estado,
-  retractall(t(_)),
-  crea_estado,
-  goal(R,U),
-  assert(utilidad(A,U)).
-  
-mayor_utilidad([]).
+proximo_estado_simulado.
 
-mayor_utilidad([[A,U]|Ac]) :-
-  max_utilidad(_A1,U1),
-  U > U1,
-  retract(max_utilidad(_,_)),
-  assert(max_utilidad(A,U)),
-  mayor_utilidad(Ac).
 
-mayor_utilidad([_A|Ac]) :- 
-  mayor_utilidad(Ac).
+crea_estado_simulado:-
+  estado(E),
+  h(E,Y),
+  \+(t(Y)),
+  assert(t(Y)),
+  %display(Y),nl,
+  crea_estado_simulado.
 
-%restaura el estado del juego al original
-eliminar_simulacion(E1):-
-  E is E1+1,
-  h(E,_),
-  retractall(h(E,_)),
-  eliminar_simulacion(E).
+crea_estado_simulado:-retractall(h(_,_)).
 
-eliminar_simulacion(_E1).
 
-restaurar_original(E):-
-  retract(estado(_)),
-  assert(estado(E)),
-  retractall(t(_)),
-  crea_estado.
+%Obtiene de una lista, la mejor acción.
+getMejorAccion([(Accion,Puntaje)|R],_,MejorPuntajeParcial,MejorAccion,MejorPuntaje):-
+	Puntaje>=MejorPuntajeParcial,
+    getMejorAccion(R,Accion,Puntaje,MejorAccion,MejorPuntaje).
+
+getMejorAccion([(_,_)|R],MejorAccionParcial,MejorPuntajeParcial,MejorAccion,MejorPuntaje):-
+	 getMejorAccion(R,MejorAccionParcial,MejorPuntajeParcial,MejorAccion,MejorPuntaje).
+
+getMejorAccion([],MejorAccion,MejorPuntaje,MejorAccion,MejorPuntaje).
