@@ -1,0 +1,127 @@
+(cell_size x 6).
+(cell_size y 6).
+(index 0).
+(index 1).
+(index 2).
+(index 3).
+(index 4).
+(index 5).
+(pelota 1).
+(pelota 2).
+(max_pelota 2).
+(count_pelota 0).
+(count_pelota 1).
+(count_pelota 2).
+(init (cell 0 0 p)).
+(init (cell 0 1 p)).
+(init (cell 0 2 p)).
+(init (cell 0 3 p)).
+(init (cell 0 4 p)).
+(init (cell 0 5 p)).
+(init (cell 1 0 p)).
+(init (cell 1 1 b)).
+(init (cell 1 2 b)).
+(init (cell 1 3 b)).
+(init (cell 1 4 y)).
+(init (cell 1 5 p)).
+(init (cell 2 0 p)).
+(init (cell 2 1 b)).
+(init (cell 2 2 b)).
+(init (cell 2 3 b)).
+(init (cell 2 4 b)).
+(init (cell 2 5 p)).
+(init (cell 3 0 p)).
+(init (cell 3 1 b)).
+(init (cell 3 2 b)).
+(init (cell 3 3 b)).
+(init (cell 3 4 b)).
+(init (cell 3 5 p)).
+(init (cell 4 0 p)).
+(init (cell 4 1 x)).
+(init (cell 4 2 b)).
+(init (cell 4 3 b)).
+(init (cell 4 4 b)).
+(init (cell 4 5 p)).
+(init (cell 5 0 p)).
+(init (cell 5 1 p)).
+(init (cell 5 2 p)).
+(init (cell 5 3 p)).
+(init (cell 5 4 p)).
+(init (cell 5 5 p)).
+(init (pelotas x 2)).
+(init (pelotas y 2)).
+(init (control x)).
+<= ((base (cell ?a ?b b)) (and (index ?a) (index ?b))).
+<= ((base (cell ?a ?b p)) (and (index ?a) (index ?b))).
+<= ((base (cell ?a ?b ?c)) (and (role ?c) (and (index ?a) (index ?b)))).
+<= ((base (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (role ?c) (and (pelota ?d) (and (index ?a) (and (index ?b) (and (velocidad ?e) (velocidad ?f))))))).
+<= ((base (cell ?a ?b (golpeado ?c))) (and (role ?c) (and (index ?a) (index ?b)))).
+<= ((base (pelotas ?a ?b)) (and (role ?a) (count_pelota ?b))).
+<= ((base (control ?a)) (role ?a)).
+(velocidad 0).
+(velocidad 1).
+(velocidad -1).
+<= ((input ?a (lanzar ?b ?c)) (and (role ?a) (and (index ?b) (index ?c)))).
+<= ((input ?a (mover ?b ?c)) (and (role ?a) (and (index ?b) (index ?c)))).
+<= ((input ?a nada) (role ?a)).
+<= ((legal ?a (lanzar ?b ?c)) (and (t (control ?a)) (and (or (t (cell ?b ?c b)) (or (t (cell ?b ?c x)) (t (cell ?b ?c y)))) (and (not (posicion_futura ?d ?e ?b ?c)) (and (t (cell ?f ?g ?a)) (and (adyacente ?b ?c ?f ?g) (and (t (pelotas ?a ?h)) (> ?h 0)))))))).
+<= ((legal ?a (mover ?b ?c)) (and (t (control ?a)) (and (t (cell ?b ?c (pelota ?d ?e ?f ?g))) (and (t (cell ?h ?i ?a)) (adyacente ?b ?c ?h ?i))))).
+<= ((legal ?a (mover ?b ?c)) (and (t (control ?a)) (and (t (cell ?b ?c b)) (and (t (cell ?d ?e ?a)) (adyacente ?b ?c ?d ?e))))).
+(legal ?a nada).
+<= ((adyacente ?a ?b ?c ?d) (or (and (or (sum ?c 1 ?a) (minus ?c 1 ?a)) (or (sum ?d 1 ?b) (minus ?d 1 ?b))) (or (and (vzx c ?a) (or (sum ?d 1 ?b) (minus ?d 1 ?b))) (and (or (sum ?c 1 ?a) (minus ?c 1 ?a)) (vzx d ?b))))).
+<= ((next (cell ?a ?b p)) (t (cell ?a ?b p))).
+<= ((next (cell ?a ?b (golpeado ?c))) (and (does ?c (mover ?a ?b)) (and (posicion_futura ?d ?e ?a ?b) (and (distinct ?d ?c) (not (colision ?a ?b)))))).
+<= ((next (cell ?a ?b (golpeado ?c))) (and (does ?c (mover ?d ?e)) (and (t (cell ?a ?b ?c)) (and (t (cell ?d ?e (pelota ?f ?g ?h ?i))) (and (distinct ?f ?c) (and (posicion_futura ?f ?g ?a ?b) (not (colision ?d ?e)))))))).
+<= ((next (cell ?a ?b (golpeado ?c))) (and (does ?d (lanzar ?a ?b)) (and (t (cell ?a ?b ?c)) (distinct ?d ?c)))).
+<= ((next (cell ?a ?b (golpeado ?c))) (and (does ?c nada) (and (t (cell ?a ?b ?c)) (and (posicion_futura ?d ?e ?a ?b) (and (distinct ?d ?c) (not (colision ?a ?b))))))).
+<= ((next (cell ?a ?b ?c)) (and (or (does ?c nada) (does ?c (lanzar ?d ?e))) (and (t (cell ?a ?b ?c)) (not (posicion_futura ?f ?g ?a ?b))))).
+<= ((next (cell ?a ?b ?c)) (and (or (does ?c nada) (does ?c (lanzar ?d ?e))) (and (t (cell ?a ?b ?c)) (and (posicion_futura ?f ?g ?a ?b) (colision ?a ?b))))).
+<= ((next (cell ?a ?b ?c)) (and (or (does ?c nada) (does ?c (lanzar ?d ?e))) (and (t (cell ?a ?b ?c)) (and (posicion_futura ?c ?f ?a ?b) (not (colision ?a ?b)))))).
+<= ((next (cell ?a ?b ?c)) (and (does ?c (mover ?a ?b)) (and (posicion_futura ?c ?d ?a ?b) (not (colision ?a ?b))))).
+<= ((next (cell ?a ?b ?c)) (and (does ?c (mover ?a ?b)) (not (posicion_futura ?d ?e ?a ?b)))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (does ?c (lanzar ?a ?b)) (and (t (cell ?g ?h ?c)) (and (minus ?a ?g ?e) (and (minus ?b ?h ?f) (and (init (pelotas ?c ?i)) (and (buscar_pelota_no_usada ?c ?i ?d) (distinct ?d e)))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d 0 0))) (and (t (cell ?a ?b (pelota ?c ?d 0 0))) (not (does ?e (mover ?a ?b))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?i ?j))) (and (posicion_futura ?c ?d ?a ?b) (and (not (colision ?a ?b)) (and (not (does ?k (mover ?a ?b))) (and (igual ?a ?g) (and (igual ?b ?h) (and (mult ?i -1 ?e) (mult ?j -1 ?f))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?e ?i))) (and (posicion_futura ?c ?d ?a ?b) (and (not (colision ?a ?b)) (and (not (does ?j (mover ?a ?b))) (and (distinct ?a ?g) (and (igual ?b ?h) (and (t (cell ?a ?b b)) (mult ?i -1 ?f))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?i ?f))) (and (posicion_futura ?c ?d ?a ?b) (and (not (colision ?a ?b)) (and (not (does ?j (mover ?a ?b))) (and (igual ?a ?g) (and (distinct ?b ?h) (and (t (cell ?a ?b b)) (mult ?i -1 ?e))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?a ?b) (and (not (colision ?a ?b)) (and (t (cell ?a ?b b)) (and (not (does ?i (mover ?a ?b))) (and (sum ?g ?e ?a) (sum ?h ?f ?b)))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d 0 0))) (and (t (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?g ?h) (and (colision ?g ?h) (not (does ?i (mover ?a ?b))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d 0 0))) (and (t (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?g ?h) (and (t (cell ?g ?h (pelota ?i ?j ?k ?l))) (and (posicion_futura ?i ?j ?a ?b) (and (or (distinct ?i ?c) (distinct ?j ?d)) (not (does ?m (mover ?a ?b))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?a ?b) (and (t (cell ?a ?b (pelota ?i ?j ?k ?l))) (and (or (distinct ?i ?c) (distinct ?j ?d)) (and (not (posicion_futura ?i ?j ?g ?h)) (and (not (posicion_futura ?i ?j ?a ?b)) (not (does ?m (mover ?a ?b)))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d 0 0))) (and (t (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?g ?h) (and (t (cell ?g ?h (pelota ?i ?j ?k ?l))) (and (or (posicion_futura ?i ?j ?a ?b) (posicion_futura ?i ?j ?g ?h)) (and (or (distinct ?i ?c) (distinct ?j ?d)) (not (does ?m (mover ?a ?b))))))))).
+<= ((next (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (t (cell ?g ?h (pelota ?c ?d ?e ?f))) (and (posicion_futura ?c ?d ?a ?b) (and (not (colision ?a ?b)) (and (t (cell ?a ?b ?i)) (and (does ?i (mover ?j ?k)) (or (distinct ?g ?j) (distinct ?h ?k)))))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b ?c)) (and (does ?c (mover ?d ?e)) (or (not (posicion_futura ?f ?g ?a ?b)) (colision ?a ?b))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b b)) (and (does ?c (mover ?d ?e)) (and (or (distinct ?a ?d) (distinct ?b ?e)) (or (not (posicion_futura ?f ?g ?a ?b)) (colision ?a ?b)))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b b)) (and (does ?c (lanzar ?d ?e)) (and (or (distinct ?a ?d) (distinct ?b ?e)) (or (not (posicion_futura ?f ?g ?a ?b)) (colision ?a ?b)))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b (pelota ?c ?d ?e ?f))) (and (sum ?a ?e ?g) (and (sum ?b ?f ?h) (and (not (colision ?g ?h)) (and (not (posicion_futura ?c ?d ?a ?b)) (and (not (does ?i (mover ?a ?b))) (and (or (not (posicion_futura ?j ?k ?a ?b)) (colision ?a ?b)) (not (does ?l (lanzar ?a ?b))))))))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b b)) (and (t (control ?c)) (and (does ?c nada) (or (not (posicion_futura ?d ?e ?a ?b)) (colision ?a ?b)))))).
+<= ((next (cell ?a ?b b)) (and (t (cell ?a ?b ?c)) (and (does ?c (mover ?d ?e)) (and (t (cell ?d ?e (pelota ?c ?f ?g ?h))) (and (posicion_futura ?c ?f ?i ?j) (and (igual ?i ?a) (igual ?j ?b))))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a (lanzar ?c ?d)) (and (t (cell ?e ?f ?a)) (and (cae_pelota ?e ?f ?a) (t (pelotas ?a ?b)))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a (lanzar ?c ?d)) (and (t (cell ?e ?f ?a)) (and (not (cae_pelota ?e ?f ?a)) (and (t (pelotas ?a ?g)) (minus ?g 1 ?b)))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a (mover ?c ?d)) (and (cae_pelota ?c ?d ?a) (and (t (pelotas ?a ?e)) (sum ?e 1 ?b))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a (mover ?c ?d)) (and (t (cell ?e ?f ?a)) (and (t (cell ?c ?d (pelota ?a ?g ?h ?i))) (and (posicion_futura ?a ?g ?j ?k) (and (igual ?j ?e) (and (igual ?k ?f) (and (t (pelotas ?a ?l)) (sum ?l 1 ?b))))))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a (mover ?c ?d)) (and (not (cae_pelota ?c ?d ?a)) (t (pelotas ?a ?b))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a nada) (and (t (cell ?c ?d ?a)) (and (cae_pelota ?c ?d ?a) (and (t (pelotas ?a ?e)) (sum ?e 1 ?b)))))).
+<= ((next (pelotas ?a ?b)) (and (does ?a nada) (and (t (cell ?c ?d ?a)) (and (not (cae_pelota ?c ?d ?a)) (t (pelotas ?a ?b)))))).
+<= ((next (control x)) (t (control y))).
+<= ((next (control y)) (t (control x))).
+<= ((cae_pelota ?a ?b ?c) (and (posicion_futura ?c ?d ?a ?b) (not (colision ?a ?b)))).
+<= ((posicion_futura ?a ?b ?c ?d) (t (cell ?c ?d (pelota ?a ?b 0 0)))).
+<= ((posicion_futura ?a ?b ?c ?d) (and (t (cell ?e ?f (pelota ?a ?b ?g ?h))) (and (sum ?e ?g ?c) (and (sum ?f ?h ?d) (not (t (cell ?c ?d p))))))).
+<= ((posicion_futura ?a ?b ?c ?d) (and (t (cell ?c ?d (pelota ?a ?b ?e ?f))) (and (sum ?c ?e ?g) (and (sum ?d ?f ?h) (and (t (cell ?g ?h p)) (or (and (or (igual ?e 1) (igual ?e -1)) (igual ?f 0)) (and (igual ?e 0) (or (igual ?f 1) (igual ?f -1))))))))).
+<= ((posicion_futura ?a ?b ?c ?d) (and (t (cell ?c ?d (pelota ?a ?b ?e ?f))) (and (sum ?c ?e ?g) (and (sum ?d ?f ?h) (and (t (cell ?g ?h p)) (and (or (and (t (cell ?c ?h p)) (t (cell ?g ?d p))) (and (not (t (cell ?c ?h p))) (not (t (cell ?g ?d p))))) (and (or (igual ?e 1) (igual ?e -1)) (or (igual ?f 1) (igual ?f -1))))))))).
+<= ((posicion_futura ?a ?b ?c ?d) (and (t (cell ?e ?d (pelota ?a ?b ?f ?g))) (and (sum ?e ?f ?c) (and (sum ?d ?g ?h) (and (t (cell ?c ?h p)) (and (t (cell ?e ?h p)) (and (not (t (cell ?c ?d p))) (and (or (igual ?f 1) (igual ?f -1)) (or (igual ?g 1) (igual ?g -1)))))))))).
+<= ((posicion_futura ?a ?b ?c ?d) (and (t (cell ?c ?e (pelota ?a ?b ?f ?g))) (and (sum ?c ?f ?h) (and (sum ?e ?g ?d) (and (t (cell ?h ?d p)) (and (not (t (cell ?c ?d p))) (and (t (cell ?h ?e p)) (and (or (igual ?f 1) (igual ?f -1)) (or (igual ?g 1) (igual ?g -1)))))))))).
+<= ((colision ?a ?b) (and (posicion_futura ?c ?d ?a ?b) (and (posicion_futura ?e ?f ?a ?b) (or (distinct ?c ?e) (distinct ?d ?f))))).
+(buscar_pelota_no_usada ?a 0 e).
+<= ((buscar_pelota_no_usada ?a ?b ?b) (not (t (cell ?c ?d (pelota ?a ?b ?e ?f))))).
+<= ((buscar_pelota_no_usada ?a ?b ?c) (and (t (cell ?d ?e (pelota ?a ?b ?f ?g))) (and (minus ?b 1 ?h) (buscar_pelota_no_usada ?a ?h ?c)))).
+<= ((goal x 0) (golpeado x)).
+<= ((goal x 50) (and (golpeado x) (golpeado y))).
+<= ((goal x 100) (golpeado y)).
+<= ((goal y 0) (golpeado y)).
+<= ((goal y 50) (and (golpeado y) (golpeado x))).
+<= ((goal y 100) (golpeado x)).
+<= ((goal ?a 25) (and (not (golpeado x)) (not (golpeado y)))).
+<= (terminal (or (golpeado x) (golpeado y))).
+<= ((golpeado ?a) (t (cell ?b ?c (golpeado ?a)))).
